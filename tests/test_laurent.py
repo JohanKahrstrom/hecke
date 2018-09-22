@@ -60,3 +60,15 @@ class TestLaurent(unittest.TestCase):
                 3: 3*(-1)
             })
         )
+
+    def testMultInt(self):
+        result = l.Laurent({-4: 2, -1: 0, 2: 3}) * 3
+
+        self.assertEqual(
+            result,
+            l.Laurent({
+                -4: 6,
+                -1: 0,
+                2: 9
+            })
+        )
