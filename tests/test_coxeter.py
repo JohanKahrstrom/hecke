@@ -35,6 +35,16 @@ class TestCoxeter(unittest.TestCase):
         self.assertEqual(ss, group.get('e'))
         self.assertNotEqual(s, ss)
 
+    def testLength(self):
+        group = c.generate_a2()
+
+        self.assertEqual(group.get('e').length(), 0)
+        self.assertEqual(group.get('r').length(), 1)
+        self.assertEqual(group.get('s').length(), 1)
+        self.assertEqual(group.get('rs').length(), 2)
+        self.assertEqual(group.get('sr').length(), 2)
+        self.assertEqual(group.get('rsr').length(), 3)
+
     def testGeneratesAllElementsA2(self):
         group = c.CoxeterGroup.generate({
             'r': p.Permutation([2, 1, 3]),

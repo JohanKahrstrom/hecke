@@ -21,6 +21,12 @@ class CoxeterElement:
         new_name = self.group.name_lookup[new_permutation]
         return self.group.get(new_name)
 
+    def length(self):
+        if self.name == 'e':
+            return 0
+        else:
+            return len(self.name)
+
     def __eq__(self, other):
         return self.group == other.group and self.name == other.name
 
