@@ -27,11 +27,17 @@ class Laurent:
         return self + (-other)
 
     def __mul__(self, other):
-        c = collections.Counter()
-        for deg1, value1 in self.coef.items():
-            for deg2, value2 in other.coef.items():
-                c[deg1 + deg2] += value1 * value2
-        return Laurent(c)
+        if isinstance(other, int):
+            d = dict()
+            for deg, value in self.coef.items():
+                d[deg] = value * other
+            return Laurent(d)
+        else:
+            c = collections.Counter()
+            for deg1, value1 in self.coef.items():
+                for deg2, value2 in other.coef.items():
+                    c[deg1 + deg2] += value1 * value2
+            return Laurent(c)
 
     def __str__(self):
         return str(self.coef)
