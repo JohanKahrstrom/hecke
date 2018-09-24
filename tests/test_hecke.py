@@ -9,15 +9,15 @@ class TestHecke(unittest.TestCase):
         group = c.generate_a2()
         hecke = h.HeckeAlgebra(group)
 
-        h1 = h.HeckeElement(hecke, {
+        h1 = hecke.element({
             's': l.Laurent({-1: 1, 1: 1})
         })
-        h2 = h.HeckeElement(hecke, {
+        h2 = hecke.element({
             'e': l.Laurent({-3: 5}),
             's': l.Laurent({0: 1, 1: 4})
         })
 
-        expected_sum = h.HeckeElement(hecke, {
+        expected_sum = hecke.element({
             'e': l.Laurent({-3: 5}),
             's': l.Laurent({-1: 1, 0: 1, 1: 5})
         })
@@ -28,20 +28,20 @@ class TestHecke(unittest.TestCase):
         group = c.generate_a2()
         hecke = h.HeckeAlgebra(group)
 
-        e = h.HeckeElement(hecke, {
+        e = hecke.element({
             'e': l.Laurent({0: 1})
         })
 
         self.assertEqual(e * e, e)
 
-        h1 = h.HeckeElement(hecke, {
+        h1 = hecke.element({
             's': l.Laurent({10: 1, 20: 2}),
             'rs': l.Laurent({-1: 2, 0: 1})
         })
 
         self.assertEqual(h1 * e, h1)
 
-        h2 = h.HeckeElement(hecke, {
+        h2 = hecke.element({
             'e': l.Laurent({-100: 20, 0: 10, 100: 20}),
             'rsr': l.Laurent({-25: -12, -2: -1, 2: 2})
         })
@@ -53,22 +53,22 @@ class TestHecke(unittest.TestCase):
         group = c.generate_a2()
         hecke = h.HeckeAlgebra(group)
 
-        e = h.HeckeElement(hecke, {
+        e = hecke.element({
             'e': l.Laurent({0: 1})
         })
-        r = h.HeckeElement(hecke, {
+        r = hecke.element({
             'r': l.Laurent({0: 1})
         })
-        s = h.HeckeElement(hecke, {
+        s = hecke.element({
             's': l.Laurent({0: 1})
         })
-        rs = h.HeckeElement(hecke, {
+        rs = hecke.element({
             'rs': l.Laurent({0: 1})
         })
-        sr = h.HeckeElement(hecke, {
+        sr = hecke.element({
             'sr': l.Laurent({0: 1})
         })
-        rsr = h.HeckeElement(hecke, {
+        rsr = hecke.element({
             'rsr': l.Laurent({0: 1})
         })
 
@@ -81,32 +81,65 @@ class TestHecke(unittest.TestCase):
         self.assertEqual(r * sr, rsr)
         self.assertEqual(sr * s, rsr)
         self.assertEqual(s * s,
-                         h.HeckeElement(hecke, {
+                         hecke.element({
                              's': l.Laurent({-1: 1, 1: -1}),
                              'e': l.Laurent({0: 1})
                          }))
         self.assertEqual(sr * r,
-                         h.HeckeElement(hecke, {
+                         hecke.element({
                              'sr': l.Laurent({-1: 1, 1: -1}),
                              's': l.Laurent({0: 1})
                          }))
-        self.assertEqual(h.HeckeElement(hecke, {
+        self.assertEqual(hecke.element({
                              'r': l.Laurent({0: 2})
-                         }) * h.HeckeElement(group, {
+                         }) * hecke.element({
                              'sr': l.Laurent({0: 2})
                          }),
-                         h.HeckeElement(hecke, {
+                         hecke.element({
                              'rsr': l.Laurent({0: 4})
                          }))
+
+    def test_mult_int(self):
+        group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
+
+        element = hecke.element({
+            'e': l.Laurent({-100: 20, 0: 10, 100: 20}),
+            'rsr': l.Laurent({-25: -12, -2: -1, 2: 2})
+        })
+        result = element * 3
+        expected_result = hecke.element({
+            'e': l.Laurent({-100: 60, 0: 30, 100: 60}),
+            'rsr': l.Laurent({-25: -36, -2: -3, 2: 6})
+        })
+
+        self.assertEqual(result, expected_result)
+
+    def test_mult_laurent(self):
+        group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
+
+        l1 = l.Laurent({0: 1, 1: -1})
+        l2 = l.Laurent({-2: 10, 3: 5})
+
+        element = hecke.element({
+            'e': l1
+        })
+        result = element * l2
+        expected_result = hecke.element({
+            'e': l1 * l2
+        })
+        self.assertEqual(result,
+                         expected_result)
 
     def test_w0_central(self):
         group = c.generate_a2()
         hecke = h.HeckeAlgebra(group)
-        w0 = h.HeckeElement(hecke, {'rsr': l.Laurent({0: 1})})
+        w0 = hecke.element({'rsr': l.Laurent({0: 1})})
         w02 = w0 * w0
-        h1 = h.HeckeElement(hecke, {'e': l.Laurent({1: 2}),
-                                    'sr': l.Laurent({-10: 20, 2: 1})})
-        h2 = h.HeckeElement(hecke, {'e': l.Laurent({0: 1})})
+        h1 = hecke.element({'e': l.Laurent({1: 2}),
+                            'sr': l.Laurent({-10: 20, 2: 1})})
+        h2 = hecke.element({'e': l.Laurent({0: 1})})
 
         self.assertEqual(w02 * h1, h1 * w02)
         self.assertEqual(w02 * h2, h2 * w02)
