@@ -2,21 +2,22 @@ import unittest
 import hecke.hecke as h
 import hecke.coxeter as c
 import hecke.laurent as l
-import hecke.permutation as p
+
 
 class TestHecke(unittest.TestCase):
     def test_add(self):
         group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
 
-        h1 = h.Hecke(group, {
+        h1 = h.HeckeElement(hecke, {
             's': l.Laurent({-1: 1, 1: 1})
         })
-        h2 = h.Hecke(group, {
+        h2 = h.HeckeElement(hecke, {
             'e': l.Laurent({-3: 5}),
             's': l.Laurent({0: 1, 1: 4})
         })
 
-        expected_sum = h.Hecke(group, {
+        expected_sum = h.HeckeElement(hecke, {
             'e': l.Laurent({-3: 5}),
             's': l.Laurent({-1: 1, 0: 1, 1: 5})
         })
@@ -25,21 +26,22 @@ class TestHecke(unittest.TestCase):
 
     def test_mul_identity(self):
         group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
 
-        e = h.Hecke(group, {
+        e = h.HeckeElement(hecke, {
             'e': l.Laurent({0: 1})
         })
 
         self.assertEqual(e * e, e)
 
-        h1 = h.Hecke(group, {
+        h1 = h.HeckeElement(hecke, {
             's': l.Laurent({10: 1, 20: 2}),
             'rs': l.Laurent({-1: 2, 0: 1})
         })
 
         self.assertEqual(h1 * e, h1)
 
-        h2 = h.Hecke(group, {
+        h2 = h.HeckeElement(hecke, {
             'e': l.Laurent({-100: 20, 0: 10, 100: 20}),
             'rsr': l.Laurent({-25: -12, -2: -1, 2: 2})
         })
@@ -49,23 +51,24 @@ class TestHecke(unittest.TestCase):
 
     def test_mul_generator(self):
         group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
 
-        e = h.Hecke(group, {
+        e = h.HeckeElement(hecke, {
             'e': l.Laurent({0: 1})
         })
-        r = h.Hecke(group, {
+        r = h.HeckeElement(hecke, {
             'r': l.Laurent({0: 1})
         })
-        s = h.Hecke(group, {
+        s = h.HeckeElement(hecke, {
             's': l.Laurent({0: 1})
         })
-        rs = h.Hecke(group, {
+        rs = h.HeckeElement(hecke, {
             'rs': l.Laurent({0: 1})
         })
-        sr = h.Hecke(group, {
+        sr = h.HeckeElement(hecke, {
             'sr': l.Laurent({0: 1})
         })
-        rsr = h.Hecke(group, {
+        rsr = h.HeckeElement(hecke, {
             'rsr': l.Laurent({0: 1})
         })
 
@@ -78,37 +81,38 @@ class TestHecke(unittest.TestCase):
         self.assertEqual(r * sr, rsr)
         self.assertEqual(sr * s, rsr)
         self.assertEqual(s * s,
-                         h.Hecke(group, {
+                         h.HeckeElement(hecke, {
                              's': l.Laurent({-1: 1, 1: -1}),
                              'e': l.Laurent({0: 1})
                          }))
         self.assertEqual(sr * r,
-                         h.Hecke(group, {
+                         h.HeckeElement(hecke, {
                              'sr': l.Laurent({-1: 1, 1: -1}),
                              's': l.Laurent({0: 1})
                          }))
-        self.assertEqual(h.Hecke(group, {
+        self.assertEqual(h.HeckeElement(hecke, {
                              'r': l.Laurent({0: 2})
-                         }) * h.Hecke(group, {
+                         }) * h.HeckeElement(group, {
                              'sr': l.Laurent({0: 2})
                          }),
-                         h.Hecke(group, {
+                         h.HeckeElement(hecke, {
                              'rsr': l.Laurent({0: 4})
                          }))
 
     def test_w0_central(self):
         group = c.generate_a2()
-        w0 = h.Hecke(group, {'rsr': l.Laurent({0: 1})})
+        hecke = h.HeckeAlgebra(group)
+        w0 = h.HeckeElement(hecke, {'rsr': l.Laurent({0: 1})})
         w02 = w0 * w0
-        h1 = h.Hecke(group, {'e': l.Laurent({1: 2}),
-                             'sr': l.Laurent({-10: 20, 2: 1})})
-        h2 = h.Hecke(group, {'e': l.Laurent({0: 1})})
+        h1 = h.HeckeElement(hecke, {'e': l.Laurent({1: 2}),
+                                    'sr': l.Laurent({-10: 20, 2: 1})})
+        h2 = h.HeckeElement(hecke, {'e': l.Laurent({0: 1})})
 
-        print("-")
-        print(w02)
-        print("-")
-        print(w02 * h2)
-        print("-")
-        print(h2 * w02)
         self.assertEqual(w02 * h1, h1 * w02)
         self.assertEqual(w02 * h2, h2 * w02)
+
+    def test_get_standard_base(self):
+        group = c.generate_a2()
+
+        for name, element in group.elements.items():
+            pass

@@ -1,13 +1,25 @@
 import hecke.laurent as l
 
-class Hecke:
-    def __init__(self, group, elements):
+
+class HeckeAlgebra:
+    def __init__(self, group):
+        self.group = group
+
+    def get_standard_basis_element(self, element):
+        """Returns a standard basis element H_x"""
+        if element not in self.group.elements:
+            raise Exception(f"Can't create standard basis element for {element}.")
+        return HeckeElement(self.group, {element: l.Laurent({0: 1})})
+
+
+class HeckeElement:
+    def __init__(self, hecke, elements):
         """
-        Initializes a hecke algebra.
-        :param group: The Coxeter group.
+        Initializes a hecke algebra element.
+        :param group: The Hecke algebra.
         :param elements: A map from name to Laurent polynomial.
         """
-        self.group = group
+        self.hecke = hecke
         self.elements = elements
 
     def __add__(self, other):
@@ -16,10 +28,10 @@ class Hecke:
         for key in allkeys:
             ret[key] = self.elements.get(key, l.zero) + other.elements.get(key, l.zero)
 
-        return Hecke(self.group, ret)
+        return HeckeElement(self.hecke, ret)
 
     def __mul__(self, other):
-        ret = Hecke(self.group, {})
+        ret = HeckeElement(self.hecke, {})
         for thiselement, thiscoeff in self.elements.items():
             for otherelement, othercoeff in other.elements.items():
                 ret += self.simple_mul(thiselement, thiscoeff,
@@ -28,29 +40,29 @@ class Hecke:
 
     def simple_mul(self, thiselement, thiscoeff, otherelement, othercoeff):
         if otherelement == 'e' or otherelement == '':
-            return Hecke(self.group, {thiselement: thiscoeff * othercoeff})
+            return HeckeElement(self.hecke, {thiselement: thiscoeff * othercoeff})
         else:
             s = otherelement[0]
             prod = self.simple_simple_mul(thiselement, thiscoeff, s, othercoeff)
-            return prod * Hecke(self.group, {otherelement[1:]: l.one})
+            return prod * HeckeElement(self.hecke, {otherelement[1:]: l.one})
 
     def simple_simple_mul(self, thiselement, thiscoeff, s, othercoeff):
-        w = self.group.get(thiselement)
-        s = self.group.get(s)
+        w = self.hecke.group.get(thiselement)
+        s = self.hecke.group.get(s)
         ws = w * s
         if ws.length() > w.length():
-            return Hecke(self.group, {ws.name: thiscoeff * othercoeff})
+            return HeckeElement(self.hecke, {ws.name: thiscoeff * othercoeff})
         else:
-            return Hecke(self.group, {
+            return HeckeElement(self.hecke, {
                 ws.name: thiscoeff * othercoeff,
                 w.name: thiscoeff * othercoeff * l.Laurent({-1: 1, 1: -1})
             })
 
     def __eq__(self, other):
-        return self.group == other.group and self.elements == other.elements
+        return self.hecke.group == other.hecke.group and self.elements == other.elements
 
     def __repr__(self):
-        return f'hecke.hecke.Hecke({self.group}, {self.elements})'
+        return f'hecke.hecke.Hecke({self.hecke.group}, {self.elements})'
 
     def __str__(self):
-        return f'Hecke({self.group}, {self.elements})'
+        return f'Hecke({self.hecke.group}, {self.elements})'
