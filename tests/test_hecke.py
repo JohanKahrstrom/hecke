@@ -257,7 +257,7 @@ class TestHecke(unittest.TestCase):
                 if key != head:
                     self.assertTrue(value.all_positive_degree())
 
-        group = c.generate_a3()
+        group = c.generate_a5()
         hecke = h.HeckeAlgebra(group)
 
         kl_basis = hecke.generate_kl_basis()

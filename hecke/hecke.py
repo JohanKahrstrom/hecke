@@ -94,8 +94,7 @@ class HeckeAlgebra:
                     # Subtract all y[1] with ys < s:
                     for y, coef in kl_x.elements.items():
                         if 1 in coef and (self.group.get(y) * self.group.get(s)).length() < self.group.get(y).length():
-                            subb = ret[y] * coef[1]
-                            sub -= subb
+                            sub -= ret[y] * coef[1]
                 ret[xs] = kl_xs + sub
 
         return ret

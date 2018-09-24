@@ -131,9 +131,29 @@ def generate_a2():
             's': p.Permutation([1, 3, 2])
         })
 
+
 def generate_a3():
     return CoxeterGroup.generate({
         'r': p.Permutation([2, 1, 3, 4]),
         's': p.Permutation([1, 3, 2, 4]),
         't': p.Permutation([1, 2, 4, 3])
+    })
+
+
+def generate_a4():
+    return CoxeterGroup.generate({
+        'r': p.Permutation([2, 1, 3, 4, 5]),
+        's': p.Permutation([1, 3, 2, 4, 5]),
+        't': p.Permutation([1, 2, 4, 3, 5]),
+        'u': p.Permutation([1, 2, 3, 5, 4])
+    })
+
+
+def generate_a5():
+    return CoxeterGroup.generate({
+        'r': p.Permutation([2, 1, 3, 4, 5, 6]),
+        's': p.Permutation([1, 3, 2, 4, 5, 6]),
+        't': p.Permutation([1, 2, 4, 3, 5, 6]),
+        'u': p.Permutation([1, 2, 3, 5, 4, 6]),
+        'v': p.Permutation([1, 2, 3, 4, 6, 5])
     })
