@@ -15,31 +15,31 @@ class HeckeAlgebra:
         """
         return HeckeElement(self, d)
 
-    def simple_mul(self, thiselement, thiscoeff, otherelement, othercoeff):
+    def simple_mul(self, thiselement, otherelement):
         if otherelement == 'e' or otherelement == '':
-            return HeckeElement(self, {thiselement: thiscoeff * othercoeff})
+            return self.get_standard_basis_element(thiselement)
         else:
             s = otherelement[0]
-            prod = self.simple_simple_mul(thiselement, thiscoeff, s, othercoeff)
+            prod = self.simple_simple_mul(thiselement, s)
             return prod * HeckeElement(self, {otherelement[1:]: l.one})
 
-    def simple_simple_mul(self, thiselement, thiscoeff, s, othercoeff):
+    def simple_simple_mul(self, thiselement, s):
         w = self.group.get(thiselement)
         s = self.group.get(s)
         ws = w * s
         if ws.length() > w.length():
-            return HeckeElement(self, {ws.name: thiscoeff * othercoeff})
+            return HeckeElement(self, {ws.name: l.one})
         else:
             return HeckeElement(self, {
-                ws.name: thiscoeff * othercoeff,
-                w.name: thiscoeff * othercoeff * l.Laurent({-1: 1, 1: -1})
+                ws.name: l.one,
+                w.name: l.Laurent({-1: 1, 1: -1})
             })
 
     def get_standard_basis_element(self, element):
         """Returns a standard basis element H_x"""
         if element not in self.group.elements:
             raise Exception(f"Can't create standard basis element for {element}.")
-        return HeckeElement(self, {element: l.Laurent({0: 1})})
+        return HeckeElement(self, {element: l.one})
 
 
 class HeckeElement:
@@ -77,8 +77,7 @@ class HeckeElement:
         for thiselement, thiscoeff in self.elements.items():
             for otherelement, othercoeff in other.elements.items():
                 coeff = thiscoeff * othercoeff
-                ret += self.hecke.simple_mul(thiselement, thiscoeff,
-                                             otherelement, othercoeff)
+                ret += self.hecke.simple_mul(thiselement, otherelement) * coeff
         return ret
 
 
