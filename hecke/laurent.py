@@ -4,7 +4,8 @@ import collections
 
 class Laurent:
     def __init__(self, coef):
-        self.coef = sc.SortedDict(coef)
+        a = [(key, value) for key, value in coef.items() if value != 0]
+        self.coef = sc.SortedDict(a)
 
     def __eq__(self, other):
         return self.coef == other.coef
@@ -38,6 +39,9 @@ class Laurent:
                 for deg2, value2 in other.coef.items():
                     c[deg1 + deg2] += value1 * value2
             return Laurent(c)
+
+    def is_zero(self):
+        return self == zero
 
     def involute(self):
         d = dict()

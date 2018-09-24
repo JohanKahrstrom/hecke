@@ -16,6 +16,9 @@ class HeckeAlgebra:
         return HeckeElement(self, d)
 
     def simple_mul(self, thiselement, otherelement):
+        """
+        Calculates the product H_x*H_y.
+        """
         if otherelement == 'e' or otherelement == '':
             return self.get_standard_basis_element(thiselement)
         else:
@@ -41,6 +44,28 @@ class HeckeAlgebra:
             raise Exception(f"Can't create standard basis element for {element}.")
         return HeckeElement(self, {element: l.one})
 
+    def get_standard_inverse_element(self, element):
+        if element not in self.group.elements:
+            raise Exception(f"Can't create standard inverse element for {element}.")
+        ret = self.one
+        for generator in element[::-1]:
+            ret *= self.get_generator_inverse_element(generator)
+        return ret
+
+    def get_generator_inverse_element(self, generator):
+        return self.element({
+            'e': l.Laurent({-1: -1, 1: 1}),
+            generator: l.one
+        })
+
+    def get_standard_dual(self, element):
+        if element not in self.group.elements:
+            raise Exception(f"Can't create standard inverse element for {element}.")
+        ret = self.one
+        for generator in element:
+            ret *= self.get_generator_inverse_element(generator)
+        return ret
+
 
 class HeckeElement:
     def __init__(self, hecke, elements):
@@ -50,7 +75,8 @@ class HeckeElement:
         :param elements: A map from name to Laurent polynomial.
         """
         self.hecke = hecke
-        self.elements = elements
+        self.elements = {element: coeff for element, coeff in elements.items()
+                         if coeff != l.zero}
 
     def __add__(self, other):
         ret = {}
@@ -67,6 +93,7 @@ class HeckeElement:
             return self.multiply_hecke(other)
 
     def multiply_int(self, other):
+        """Also works if other is l.Laurent"""
         ret = self.hecke.zero
         for thiselement, thiscoeff in self.elements.items():
             ret += HeckeElement(self, {thiselement: thiscoeff * other})
@@ -80,6 +107,11 @@ class HeckeElement:
                 ret += self.hecke.simple_mul(thiselement, otherelement) * coeff
         return ret
 
+    def dual(self):
+        ret = self.hecke.zero
+        for element, coef in self.elements.items():
+            ret += self.hecke.get_standard_dual(element) * coef.involute()
+        return ret
 
     def __eq__(self, other):
         return self.hecke.group == other.hecke.group and self.elements == other.elements

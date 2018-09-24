@@ -144,8 +144,73 @@ class TestHecke(unittest.TestCase):
         self.assertEqual(w02 * h1, h1 * w02)
         self.assertEqual(w02 * h2, h2 * w02)
 
-    def test_get_standard_base(self):
+    def test_get_inverse(self):
         group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
 
-        for name, element in group.elements.items():
-            pass
+        self.assertEqual(
+            hecke.get_standard_basis_element('e') * hecke.get_generator_inverse_element('e'),
+            hecke.one
+        )
+
+        self.assertEqual(
+            hecke.get_standard_basis_element('r') * hecke.get_generator_inverse_element('r'),
+            hecke.one
+        )
+
+        self.assertEqual(
+            hecke.get_standard_basis_element('s') * hecke.get_generator_inverse_element('s'),
+            hecke.one
+        )
+
+        self.assertEqual(
+            hecke.get_standard_basis_element('rs') * hecke.get_standard_inverse_element('rs'),
+            hecke.one
+        )
+
+        self.assertEqual(
+            hecke.get_standard_basis_element('sr') * hecke.get_standard_inverse_element('sr'),
+            hecke.one
+        )
+
+        self.assertEqual(
+            hecke.get_standard_basis_element('rsr') * hecke.get_standard_inverse_element('rsr'),
+            hecke.one
+        )
+
+    def test_dual(self):
+        group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
+
+        self.assertEqual(
+            hecke.get_standard_basis_element('e').dual().dual(),
+            hecke.get_standard_basis_element('e')
+        )
+        self.assertEqual(
+            hecke.get_standard_basis_element('r').dual().dual(),
+            hecke.get_standard_basis_element('r')
+        )
+        self.assertEqual(
+            hecke.get_standard_basis_element('s').dual().dual(),
+            hecke.get_standard_basis_element('s')
+        )
+        self.assertEqual(
+            hecke.get_standard_basis_element('rs').dual().dual(),
+            hecke.get_standard_basis_element('rs')
+        )
+        self.assertEqual(
+            hecke.get_standard_basis_element('sr').dual().dual(),
+            hecke.get_standard_basis_element('sr')
+        )
+        self.assertEqual(
+            hecke.get_standard_basis_element('rsr').dual().dual(),
+            hecke.get_standard_basis_element('rsr')
+        )
+
+        h1 = hecke.element({
+            'e': l.Laurent({-1: 10, 2: 3}),
+            's': l.Laurent({0: 1, 1: 3}),
+            'rsr': l.Laurent({20: -12})
+        })
+
+        self.assertEqual(h1.dual().dual(), h1)
