@@ -7,6 +7,12 @@ class Laurent:
         a = [(key, value) for key, value in coef.items() if value != 0]
         self.coef = sc.SortedDict(a)
 
+    def __contains__(self, key):
+        return key in self.coef
+
+    def __getitem__(self, key):
+        return self.coef[key]
+
     def __eq__(self, other):
         return self.coef == other.coef
 
@@ -42,6 +48,12 @@ class Laurent:
 
     def is_zero(self):
         return self == zero
+
+    def all_positive_degree(self):
+        for deg, value in self.coef.items():
+            if deg <= 0:
+                return False
+        return True
 
     def involute(self):
         d = dict()

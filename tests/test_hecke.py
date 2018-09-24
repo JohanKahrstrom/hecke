@@ -24,6 +24,29 @@ class TestHecke(unittest.TestCase):
 
         self.assertEqual(h1 + h2, expected_sum)
 
+    def test_sub(self):
+        group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
+
+        h1 = hecke.element({
+            's': l.Laurent({-1: 1, 1: 1})
+        })
+
+        h2 = hecke.element({
+            'e': l.Laurent({-3: 5}),
+            's': l.Laurent({0: 1, 1: 4})
+        })
+
+        h3 = hecke.element(({
+            'e': l.Laurent({-3: -5}),
+            's': l.Laurent({-1: 1, 0: -1, 1: -3})
+        }))
+
+        self.assertEqual(h1 - h1, hecke.zero)
+        self.assertEqual(h2 - h2, hecke.zero)
+
+        self.assertEqual(h1 - h2, h3)
+
     def test_mul_identity(self):
         group = c.generate_a2()
         hecke = h.HeckeAlgebra(group)
@@ -214,3 +237,34 @@ class TestHecke(unittest.TestCase):
         })
 
         self.assertEqual(h1.dual().dual(), h1)
+
+        hs = hecke.element({
+            'e': l.Laurent({1: 1}),
+            's': l.Laurent({0: 1})
+        })
+
+        self.assertEqual(hs.dual(), hs)
+        print(hs * hs)
+        self.assertEqual(
+            hs * hs,
+            hs * l.Laurent({-1: 1, 1: 1})
+        )
+
+    def test_generate_kl_basis(self):
+        def assert_positive(element, head):
+            self.assertEqual(element[head], l.one)
+            for key, value in element.elements.items():
+                if key != head:
+                    self.assertTrue(value.all_positive_degree())
+
+        group = c.generate_a3()
+        hecke = h.HeckeAlgebra(group)
+
+        kl_basis = hecke.generate_kl_basis()
+
+        for name in group.elements.keys():
+            print('-----')
+            print(f'{name}')
+            print(f'{kl_basis[name]}')
+            self.assertEqual(kl_basis[name], kl_basis[name].dual())
+            assert_positive(kl_basis[name], name)

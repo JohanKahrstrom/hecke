@@ -35,7 +35,8 @@ class CoxeterElement:
 
 
 class CoxeterGroup:
-    def __init__(self, elements, permutations, name_lookup, inverse):
+    def __init__(self, generators, elements, permutations, name_lookup, inverse):
+        self.generators = generators
         self.elements = elements
         self.permutations = permutations
         self.name_lookup = name_lookup
@@ -66,7 +67,8 @@ class CoxeterGroup:
         permutations = dict()
         name_lookup = dict()
         inverses = dict()
-        group = CoxeterGroup(elements,
+        group = CoxeterGroup(generators,
+                             elements,
                              permutations,
                              name_lookup,
                              inverses)
@@ -128,3 +130,10 @@ def generate_a2():
             'r': p.Permutation([2, 1, 3]),
             's': p.Permutation([1, 3, 2])
         })
+
+def generate_a3():
+    return CoxeterGroup.generate({
+        'r': p.Permutation([2, 1, 3, 4]),
+        's': p.Permutation([1, 3, 2, 4]),
+        't': p.Permutation([1, 2, 4, 3])
+    })

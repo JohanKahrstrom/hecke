@@ -66,6 +66,40 @@ class HeckeAlgebra:
             ret *= self.get_generator_inverse_element(generator)
         return ret
 
+    def generate_kl_basis(self):
+        ret = dict()
+
+        # Add identity
+        ret['e'] = self.get_standard_basis_element('e')
+
+        # Add generators
+        for generator in self.group.generators:
+            ret[generator] = (
+                    self.get_standard_basis_element(generator) +
+                    self.get_standard_basis_element('e') * l.Laurent({1: 1})
+            )
+
+        # Add the rest (assumes elements are ordered by length)
+        for name, element in self.group.elements.items():
+            if name not in ret:
+                x = name[:-1]
+                kl_x = ret[x]
+                s = name[-1]
+                kl_s = ret[s]
+                # Now x < xs
+                xs = name
+                kl_xs = kl_x * kl_s
+                sub = self.zero
+                if xs not in ret:
+                    # Subtract all y[1] with ys < s:
+                    for y, coef in kl_x.elements.items():
+                        if 1 in coef and (self.group.get(y) * self.group.get(s)).length() < self.group.get(y).length():
+                            subb = ret[y] * coef[1]
+                            sub -= subb
+                ret[xs] = kl_xs + sub
+
+        return ret
+
 
 class HeckeElement:
     def __init__(self, hecke, elements):
@@ -84,6 +118,15 @@ class HeckeElement:
         for key in allkeys:
             ret[key] = self.elements.get(key, l.zero) + other.elements.get(key, l.zero)
 
+        return HeckeElement(self.hecke, ret)
+
+    def __sub__(self, other):
+        return self + (-other)
+
+    def __neg__(self):
+        ret = {}
+        for element, coeff in self.elements.items():
+            ret[element] = -coeff
         return HeckeElement(self.hecke, ret)
 
     def __mul__(self, other):
@@ -112,6 +155,9 @@ class HeckeElement:
         for element, coef in self.elements.items():
             ret += self.hecke.get_standard_dual(element) * coef.involute()
         return ret
+
+    def __getitem__(self, item):
+        return self.elements[item]
 
     def __eq__(self, other):
         return self.hecke.group == other.hecke.group and self.elements == other.elements
