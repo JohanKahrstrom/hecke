@@ -39,6 +39,12 @@ class Laurent:
                     c[deg1 + deg2] += value1 * value2
             return Laurent(c)
 
+    def involute(self):
+        d = dict()
+        for deg, value in self.coef.items():
+            d[-deg] = value
+        return Laurent(d)
+
     def __str__(self):
         return str(self.coef)
 

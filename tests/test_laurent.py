@@ -72,3 +72,16 @@ class TestLaurent(unittest.TestCase):
                 2: 9
             })
         )
+
+    def testInvolution(self):
+        p = l.Laurent({-4: 2, -1: 0, 2: 3})
+        result = p.involute()
+        self.assertEqual(
+            result,
+            l.Laurent({-2: 3, 1: 0, 4: 2})
+        )
+
+        self.assertEqual(
+            p.involute().involute(),
+            p
+        )
