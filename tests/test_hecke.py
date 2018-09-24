@@ -45,6 +45,7 @@ class TestHecke(unittest.TestCase):
         })
 
         self.assertEqual(h2 * e, h2)
+        self.assertEqual(e * h2, h2)
 
     def test_mul_generator(self):
         group = c.generate_a2()
@@ -68,16 +69,46 @@ class TestHecke(unittest.TestCase):
             'rsr': l.Laurent({0: 1})
         })
 
+        self.assertEqual(e * s, s)
+        self.assertEqual(e * r, r)
+        self.assertEqual(r * s, rs)
+        self.assertEqual(s * r, sr)
+        self.assertEqual(r * s * r, rsr)
+        self.assertEqual(rs * r, rsr)
+        self.assertEqual(r * sr, rsr)
+        self.assertEqual(sr * s, rsr)
+        self.assertEqual(s * s,
+                         h.Hecke(group, {
+                             's': l.Laurent({-1: 1, 1: -1}),
+                             'e': l.Laurent({0: 1})
+                         }))
+        self.assertEqual(sr * r,
+                         h.Hecke(group, {
+                             'sr': l.Laurent({-1: 1, 1: -1}),
+                             's': l.Laurent({0: 1})
+                         }))
+        self.assertEqual(h.Hecke(group, {
+                             'r': l.Laurent({0: 2})
+                         }) * h.Hecke(group, {
+                             'sr': l.Laurent({0: 2})
+                         }),
+                         h.Hecke(group, {
+                             'rsr': l.Laurent({0: 4})
+                         }))
 
-#        self.assertEqual(e * s, s)
+    def test_w0_central(self):
+        group = c.generate_a2()
+        w0 = h.Hecke(group, {'rsr': l.Laurent({0: 1})})
+        w02 = w0 * w0
+        h1 = h.Hecke(group, {'e': l.Laurent({1: 2}),
+                             'sr': l.Laurent({-10: 20, 2: 1})})
+        h2 = h.Hecke(group, {'e': l.Laurent({0: 1})})
 
-#        self.assertEqual(e * r, r)
-
-#        self.assertEqual(r * s, rs)
-
-#        self.assertEqual(s * r, sr)
-
-#        self.assertEqual(r * s * r, rsr)
-#        self.assertEqual(rs * r, rsr)
-#        self.assertEqual(r * sr, rsr)
-#        self.assertEqual(sr * s, rsr)
+        print("-")
+        print(w02)
+        print("-")
+        print(w02 * h2)
+        print("-")
+        print(h2 * w02)
+        self.assertEqual(w02 * h1, h1 * w02)
+        self.assertEqual(w02 * h2, h2 * w02)

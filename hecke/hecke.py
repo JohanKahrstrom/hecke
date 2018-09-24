@@ -1,8 +1,12 @@
-import collections
 import hecke.laurent as l
 
 class Hecke:
     def __init__(self, group, elements):
+        """
+        Initializes a hecke algebra.
+        :param group: The Coxeter group.
+        :param elements: A map from name to Laurent polynomial.
+        """
         self.group = group
         self.elements = elements
 
@@ -18,12 +22,29 @@ class Hecke:
         ret = Hecke(self.group, {})
         for thiselement, thiscoeff in self.elements.items():
             for otherelement, othercoeff in other.elements.items():
-                if otherelement == 'e':
-                    ret += Hecke(self.group, {thiselement: thiscoeff * othercoeff})
-                else
-                    pass
+                ret += self.simple_mul(thiselement, thiscoeff,
+                                       otherelement, othercoeff)
+        return ret
 
-        return Hecke(self.group, ret)
+    def simple_mul(self, thiselement, thiscoeff, otherelement, othercoeff):
+        if otherelement == 'e' or otherelement == '':
+            return Hecke(self.group, {thiselement: thiscoeff * othercoeff})
+        else:
+            s = otherelement[0]
+            prod = self.simple_simple_mul(thiselement, thiscoeff, s, othercoeff)
+            return prod * Hecke(self.group, {otherelement[1:]: l.one})
+
+    def simple_simple_mul(self, thiselement, thiscoeff, s, othercoeff):
+        w = self.group.get(thiselement)
+        s = self.group.get(s)
+        ws = w * s
+        if ws.length() > w.length():
+            return Hecke(self.group, {ws.name: thiscoeff * othercoeff})
+        else:
+            return Hecke(self.group, {
+                ws.name: thiscoeff * othercoeff,
+                w.name: thiscoeff * othercoeff * l.Laurent({-1: 1, 1: -1})
+            })
 
     def __eq__(self, other):
         return self.group == other.group and self.elements == other.elements

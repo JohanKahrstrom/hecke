@@ -47,3 +47,4 @@ class Laurent:
 
 
 zero = Laurent({})
+one = Laurent({0: 1})
