@@ -21,6 +21,9 @@ class CoxeterElement:
         new_name = self.group.name_lookup[new_permutation]
         return self.group.get(new_name)
 
+    def inverse(self):
+        return self.group.get_inverse(self.name)
+
     def length(self):
         if self.name == 'e':
             return 0
@@ -32,10 +35,11 @@ class CoxeterElement:
 
 
 class CoxeterGroup:
-    def __init__(self, elements, permutations, name_lookup):
+    def __init__(self, elements, permutations, name_lookup, inverse):
         self.elements = elements
         self.permutations = permutations
         self.name_lookup = name_lookup
+        self.inverse = inverse
 
     def get(self, name):
         return self.elements[name]
@@ -45,6 +49,9 @@ class CoxeterGroup:
         for generator_name in list(name):
             element *= self.get(generator_name)
         return element
+
+    def get_inverse(self, name):
+        return self.inverse[name]
 
     @staticmethod
     def generate(generators):
@@ -58,9 +65,11 @@ class CoxeterGroup:
         elements = dict()
         permutations = dict()
         name_lookup = dict()
+        inverses = dict()
         group = CoxeterGroup(elements,
                              permutations,
-                             name_lookup)
+                             name_lookup,
+                             inverses)
 
         lengths = set([len(v) for v in generators.values()])
         if len(lengths) != 1:
@@ -95,6 +104,17 @@ class CoxeterGroup:
 
         for name, permutation in permutations.items():
             name_lookup[permutation] = name
+
+        # Calculate inverses
+        for name, permutation in permutations.items():
+            inverse = identity_permutation
+            inverse_name = name[::-1] # Reversed string
+            for generator in inverse_name:
+                inverse = inverse * permutations[generator]
+            inverses[name] = elements[name_lookup[inverse]]
+
+        # Add identity
+        group.identity = elements['e']
 
         return group
 

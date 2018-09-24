@@ -13,13 +13,13 @@ class TestCoxeter(unittest.TestCase):
                           })
 
     def testGenerateReturnsIdentity(self):
-        group = c.CoxeterGroup.generate({'s': p.Permutation([2, 1])})
+        group = c.generate_a1()
 
         self.assertTrue('e' in group.elements)
         self.assertEquals(group.name_lookup[p.Permutation([1, 2])], 'e')
 
     def testGeneratesAllElementsA1(self):
-        group = c.CoxeterGroup.generate({'s': p.Permutation([2, 1])})
+        group = c.generate_a1()
 
         expected_lookup = {
             p.Permutation([1, 2]): 'e',
@@ -29,7 +29,7 @@ class TestCoxeter(unittest.TestCase):
         self.assertEqual(group.name_lookup, expected_lookup)
 
     def testMultiplicationInA1(self):
-        group = c.CoxeterGroup.generate({'s': p.Permutation([2, 1])})
+        group = c.generate_a1()
         s = group.get('s')
         ss = s * s
         self.assertEqual(ss, group.get('e'))
@@ -46,10 +46,7 @@ class TestCoxeter(unittest.TestCase):
         self.assertEqual(group.get('rsr').length(), 3)
 
     def testGeneratesAllElementsA2(self):
-        group = c.CoxeterGroup.generate({
-            'r': p.Permutation([2, 1, 3]),
-            's': p.Permutation([1, 3, 2])
-        })
+        group = c.generate_a2()
 
         expected_lookup = {
             p.Permutation([1, 2, 3]): 'e',
@@ -83,3 +80,10 @@ class TestCoxeter(unittest.TestCase):
         self.assertEqual(r*sr, rsr)
         self.assertEqual(s*rs, rsr)
         self.assertEqual(sr*s, rsr)
+
+    def testInverse(self):
+        group = c.generate_a2()
+
+        for element in group.elements.values():
+            self.assertEqual(element * element.inverse(), group.identity)
+            self.assertEqual(element.inverse() * element, group.identity)
