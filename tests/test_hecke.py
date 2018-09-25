@@ -250,12 +250,13 @@ class TestHecke(unittest.TestCase):
             hs * l.Laurent({-1: 1, 1: 1})
         )
 
+    def assert_positive(self, element, head):
+        self.assertEqual(element[head], l.one)
+        for key, value in element.elements.items():
+            if key != head:
+                self.assertTrue(value.all_positive_degree())
+
     def test_generate_kl_basis(self):
-        def assert_positive(element, head):
-            self.assertEqual(element[head], l.one)
-            for key, value in element.elements.items():
-                if key != head:
-                    self.assertTrue(value.all_positive_degree())
 
         group = c.generate_a2()
         hecke = h.HeckeAlgebra(group)
@@ -264,7 +265,7 @@ class TestHecke(unittest.TestCase):
 
         for name in group.elements.keys():
             self.assertEqual(kl_basis[name], kl_basis[name].dual())
-            assert_positive(kl_basis[name], name)
+            self.assert_positive(kl_basis[name], name)
 
     def test_tau(self):
         group = c.generate_a3()
@@ -284,3 +285,37 @@ class TestHecke(unittest.TestCase):
                         (hx * hy).tau(),
                         l.zero
                     )
+
+    def test_generate_dual_kl_basis(self):
+        group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
+
+        kl_basis = hecke.generate_kl_basis()
+        dual_kl_basis = hecke.generate_dual_kl_basis()
+
+        for x in group.elements.values():
+            kl_x = kl_basis[x.name]
+            for y in group.elements.values():
+                dkl_y = dual_kl_basis[y.name]
+                if x == y.inverse():
+                    self.assertEqual(
+                        (kl_x * dkl_y).tau(),
+                        l.one
+                    )
+                    self.assertEqual(
+                        (dkl_y * kl_x).tau(),
+                        l.one
+                    )
+                else:
+                    self.assertEqual(
+                        (kl_x * dkl_y).tau(),
+                        l.zero
+                    )
+                    self.assertEqual(
+                        (dkl_y * kl_x).tau(),
+                        l.zero
+                    )
+
+        for name in group.elements.keys():
+            self.assertEqual(kl_basis[name], kl_basis[name].dual())
+            self.assert_positive(kl_basis[name], name)

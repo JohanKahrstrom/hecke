@@ -6,6 +6,8 @@ class HeckeAlgebra:
         self.group = group
         self.zero = HeckeElement(self, {})
         self.one = HeckeElement(self, {'e': l.one})
+        self._kl_basis = None
+        self._dual_kl_basis = None
 
     def element(self, d):
         """
@@ -27,8 +29,8 @@ class HeckeAlgebra:
             return prod * HeckeElement(self, {otherelement[1:]: l.one})
 
     def simple_simple_mul(self, thiselement, s):
-        w = self.group.get(thiselement)
-        s = self.group.get(s)
+        w = self.group[thiselement]
+        s = self.group[s]
         ws = w * s
         if ws.length() > w.length():
             return HeckeElement(self, {ws.name: l.one})
@@ -67,37 +69,70 @@ class HeckeAlgebra:
         return ret
 
     def generate_kl_basis(self):
-        ret = dict()
+        if self._kl_basis is None:
+            ret = dict()
 
-        # Add identity
-        ret['e'] = self.get_standard_basis_element('e')
+            # Add identity
+            ret['e'] = self.get_standard_basis_element('e')
 
-        # Add generators
-        for generator in self.group.generators:
-            ret[generator] = (
-                    self.get_standard_basis_element(generator) +
-                    self.get_standard_basis_element('e') * l.Laurent({1: 1})
-            )
+            # Add generators
+            for generator in self.group.generators:
+                ret[generator] = (
+                        self.get_standard_basis_element(generator) +
+                        self.get_standard_basis_element('e') * l.Laurent({1: 1})
+                )
 
-        # Add the rest (assumes elements are ordered by length)
-        for name, element in self.group.elements.items():
-            if name not in ret:
-                x = name[:-1]
-                kl_x = ret[x]
-                s = name[-1]
-                kl_s = ret[s]
-                # Now x < xs
-                xs = name
-                kl_xs = kl_x * kl_s
-                sub = self.zero
-                if xs not in ret:
-                    # Subtract all y[1] with ys < s:
-                    for y, coef in kl_x.elements.items():
-                        if 1 in coef and (self.group.get(y) * self.group.get(s)).length() < self.group.get(y).length():
-                            sub -= ret[y] * coef[1]
-                ret[xs] = kl_xs + sub
+            # Add the rest
+            for name in sorted(self.group.elements.keys(),
+                               key=lambda str: (len(str), str)):
+                if name not in ret:
+                    x = name[:-1]
+                    kl_x = ret[x]
+                    s = name[-1]
+                    kl_s = ret[s]
+                    # Now x < xs
+                    xs = name
+                    kl_xs = kl_x * kl_s
+                    sub = self.zero
+                    if xs not in ret:
+                        # Subtract all y[1] with ys < y:
+                        for y, coef in kl_x.elements.items():
+                            if 1 in coef and (self.group[y] * self.group[s]).length() < self.group[y].length():
+                                sub -= ret[y] * coef[1]
+                        ret[xs] = kl_xs + sub
 
-        return ret
+            self._kl_basis = ret
+        return self._kl_basis
+
+    def generate_dual_kl_basis(self):
+        if self._dual_kl_basis is None:
+            kl_basis = self.generate_kl_basis()
+            ret = dict()
+
+            # Add longest element
+            ret[self.group.longest.name] = self.get_standard_basis_element(self.group.longest.name)
+
+            # Add the rest
+            for name in sorted(self.group.elements.keys(),
+                               key=lambda str: (len(str), str),
+                               reverse=True):
+                x = self.group[name]
+                for generator in self.group.generators.keys():
+                    s = self.group[generator]
+                    xs = x * s
+                    if xs.length() < x.length() and xs.name not in ret:
+                        dkl_x = ret[x.name]
+                        kl_s = kl_basis[generator]
+                        dkl_xs = dkl_x * kl_s
+                        sub = dkl_x * l.Laurent({-1: 1, 1: 1})
+                        # Subtract all y[1] with ys > y:
+                        for y, coef in dkl_x.elements.items():
+                            if 1 in coef and (self.group[y] * self.group[s.name]).length() > self.group[y].length():
+                                sub -= ret[y] * coef[1]
+                        ret[xs.name] = dkl_xs - sub
+
+            self._dual_kl_basis = ret
+        return self._dual_kl_basis
 
 
 class HeckeElement:

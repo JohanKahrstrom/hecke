@@ -30,20 +30,20 @@ class TestCoxeter(unittest.TestCase):
 
     def testMultiplicationInA1(self):
         group = c.generate_a1()
-        s = group.get('s')
+        s = group['s']
         ss = s * s
-        self.assertEqual(ss, group.get('e'))
+        self.assertEqual(ss, group['e'])
         self.assertNotEqual(s, ss)
 
     def testLength(self):
         group = c.generate_a2()
 
-        self.assertEqual(group.get('e').length(), 0)
-        self.assertEqual(group.get('r').length(), 1)
-        self.assertEqual(group.get('s').length(), 1)
-        self.assertEqual(group.get('rs').length(), 2)
-        self.assertEqual(group.get('sr').length(), 2)
-        self.assertEqual(group.get('rsr').length(), 3)
+        self.assertEqual(group['e'].length(), 0)
+        self.assertEqual(group['r'].length(), 1)
+        self.assertEqual(group['s'].length(), 1)
+        self.assertEqual(group['rs'].length(), 2)
+        self.assertEqual(group['sr'].length(), 2)
+        self.assertEqual(group['rsr'].length(), 3)
 
     def testGeneratesAllElementsA2(self):
         group = c.generate_a2()
@@ -59,12 +59,12 @@ class TestCoxeter(unittest.TestCase):
 
         self.assertEqual(group.name_lookup, expected_lookup)
 
-        e = group.get('e')
-        r = group.get('r')
-        s = group.get('s')
-        rs = group.get('rs')
-        sr = group.get('sr')
-        rsr = group.get('rsr')
+        e = group['e']
+        r = group['r']
+        s = group['s']
+        rs = group['rs']
+        sr = group['sr']
+        rsr = group['rsr']
 
         self.assertEqual(r*r, e)
         self.assertEqual(s*s, e)
@@ -87,3 +87,13 @@ class TestCoxeter(unittest.TestCase):
         for element in group.elements.values():
             self.assertEqual(element * element.inverse(), group.identity)
             self.assertEqual(element.inverse() * element, group.identity)
+
+    def test_longest(self):
+        a1 = c.generate_a1()
+        self.assertEqual(a1.longest.name, "s")
+
+        a2 = c.generate_a2()
+        self.assertEqual(a2.longest.name, "rsr")
+
+        a3 = c.generate_a3()
+        self.assertEqual(a3.longest.name, "rsrtsr")
