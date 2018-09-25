@@ -257,7 +257,7 @@ class TestHecke(unittest.TestCase):
                 if key != head:
                     self.assertTrue(value.all_positive_degree())
 
-        group = c.generate_a5()
+        group = c.generate_a2()
         hecke = h.HeckeAlgebra(group)
 
         kl_basis = hecke.generate_kl_basis()
@@ -265,3 +265,22 @@ class TestHecke(unittest.TestCase):
         for name in group.elements.keys():
             self.assertEqual(kl_basis[name], kl_basis[name].dual())
             assert_positive(kl_basis[name], name)
+
+    def test_tau(self):
+        group = c.generate_a3()
+        hecke = h.HeckeAlgebra(group)
+
+        for x in group.elements.values():
+            hx = hecke.get_standard_basis_element(x.name)
+            for y in group.elements.values():
+                hy = hecke.get_standard_basis_element(y.name)
+                if x == y.inverse():
+                    self.assertEqual(
+                        (hx * hy).tau(),
+                        l.one
+                    )
+                else:
+                    self.assertEqual(
+                        (hx * hy).tau(),
+                        l.zero
+                    )

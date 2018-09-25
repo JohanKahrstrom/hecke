@@ -155,8 +155,11 @@ class HeckeElement:
             ret += self.hecke.get_standard_dual(element) * coef.involute()
         return ret
 
+    def tau(self):
+        return self['e']
+
     def __getitem__(self, item):
-        return self.elements[item]
+        return self.elements.get(item, l.zero)
 
     def __eq__(self, other):
         return self.hecke.group == other.hecke.group and self.elements == other.elements

@@ -24,6 +24,9 @@ class CoxeterElement:
     def inverse(self):
         return self.group.get_inverse(self.name)
 
+    def permutation(self):
+        return self.group.permutations[self.name]
+
     def length(self):
         if self.name == 'e':
             return 0
@@ -62,6 +65,9 @@ class CoxeterGroup:
         :param generators:
         :return:
         """
+        print("--------")
+        print("--------")
+        print("--------")
         sorted_generators = sc.SortedDict(generators)
         elements = dict()
         permutations = dict()
@@ -91,7 +97,8 @@ class CoxeterGroup:
             permutations[name] = permutation
         # Generate the rest of the elements
         last_layer = generators
-        while len(last_layer) > 0 and len(seen_permutations) < 10:
+        nrloops = 0
+        while len(last_layer) > 0:
             new_permutations = dict()
             for name, permutation in last_layer.items():
                 for gname, generator in sorted_generators.items():
@@ -103,6 +110,8 @@ class CoxeterGroup:
                         elements[new_name] = CoxeterElement(group, new_name)
                         new_permutations[new_name] = new_permutation
             last_layer = new_permutations
+            nrloops += 1
+            print(f'Loop {nrloops}, added {last_layer}')
 
         for name, permutation in permutations.items():
             name_lookup[permutation] = name
