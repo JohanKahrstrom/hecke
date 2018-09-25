@@ -263,8 +263,5 @@ class TestHecke(unittest.TestCase):
         kl_basis = hecke.generate_kl_basis()
 
         for name in group.elements.keys():
-            print('-----')
-            print(f'{name}')
-            print(f'{kl_basis[name]}')
             self.assertEqual(kl_basis[name], kl_basis[name].dual())
             assert_positive(kl_basis[name], name)
