@@ -140,7 +140,7 @@ class HeckeAlgebra:
         kl = self.generate_kl_basis()
         ret = dict()
         for g in self.group.all_elements():
-            coef = (tmp * kl[g.name]).tau()
+            coef = (kl[g.name] * tmp).tau()
             if coef != l.zero:
                 ret[g.name] = coef
                 tmp -= kl[g.name] * coef

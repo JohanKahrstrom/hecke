@@ -331,11 +331,13 @@ class TestHecke(unittest.TestCase):
                 'e': l.one
             }
         )
-        res = hecke.in_kl_basis(hecke.get_standard_basis_element('s'))
+        # res = hecke.in_kl_basis(hecke.get_standard_basis_element('s'))
+        # print(res)
         # self.assertEqual(
         #     res,
         #     {
-        #         'e'.
+        #         'e': l.one.shift(-1),
+        #         's': l.one
         #     }
         # )
 
