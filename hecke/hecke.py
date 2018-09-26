@@ -147,7 +147,6 @@ class HeckeAlgebra:
         return ret
 
 
-
 class HeckeElement:
     def __init__(self, hecke, elements):
         """
@@ -204,6 +203,15 @@ class HeckeElement:
         ret = self.hecke.zero
         for element, coef in self.elements.items():
             ret += self.hecke.get_standard_dual(element) * coef.involute()
+        return ret
+
+    def i(self):
+        """H_x.i() = H_x^-1"""
+        ret = self.hecke.zero
+        for element, coef in self.elements.items():
+            ret += self.hecke.get_standard_dual(
+                self.group[element].inverse * coef
+            )
         return ret
 
     def tau(self):
