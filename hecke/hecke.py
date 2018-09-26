@@ -1,4 +1,5 @@
 import hecke.laurent as l
+import copy
 
 
 class HeckeAlgebra:
@@ -134,6 +135,18 @@ class HeckeAlgebra:
             self._dual_kl_basis = ret
         return self._dual_kl_basis
 
+    def in_kl_basis(self, h):
+        tmp = h.deepcopy()
+        kl = self.generate_kl_basis()
+        ret = dict()
+        for g in self.group.all_elements():
+            coef = (tmp * kl[g.name]).tau()
+            if coef != l.zero:
+                ret[g.name] = coef
+                tmp -= kl[g.name] * coef
+        return ret
+
+
 
 class HeckeElement:
     def __init__(self, hecke, elements):
@@ -145,6 +158,9 @@ class HeckeElement:
         self.hecke = hecke
         self.elements = {element: coeff for element, coeff in elements.items()
                          if coeff != l.zero}
+
+    def deepcopy(self):
+        return HeckeElement(self.hecke, copy.deepcopy(self.elements))
 
     def __add__(self, other):
         ret = {}

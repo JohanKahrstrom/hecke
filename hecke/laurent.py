@@ -7,6 +7,13 @@ class Laurent:
         a = [(key, value) for key, value in coef.items() if value != 0]
         self.coef = sc.SortedDict(a)
 
+    def shift(self, s):
+        return Laurent({(key + s): value
+                        for key, value in self.coef.items()})
+
+    def copy(self):
+        return Laurent(self.coef.copy())
+
     def __contains__(self, key):
         return key in self.coef
 

@@ -319,3 +319,23 @@ class TestHecke(unittest.TestCase):
         for name in group.elements.keys():
             self.assertEqual(kl_basis[name], kl_basis[name].dual())
             self.assert_positive(kl_basis[name], name)
+
+    def test_hecke_basis(self):
+        group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
+
+        res = hecke.in_kl_basis(hecke.get_standard_basis_element('e'))
+        self.assertEqual(
+            res,
+            {
+                'e': l.one
+            }
+        )
+        res = hecke.in_kl_basis(hecke.get_standard_basis_element('s'))
+        # self.assertEqual(
+        #     res,
+        #     {
+        #         'e'.
+        #     }
+        # )
+

@@ -127,6 +127,12 @@ class CoxeterGroup:
 
         return group
 
+    def all_elements(self):
+        """Returns the elementsl ordered by (len(nate), name)"""
+        return [self.elements[key]
+                for key
+                in sorted(self.elements.keys(), key=lambda x: (len(x), x))]
+
 
 def generate_a1():
     return CoxeterGroup.generate({'s': p.Permutation([2, 1])})
