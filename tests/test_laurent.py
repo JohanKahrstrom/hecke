@@ -96,3 +96,20 @@ class TestLaurent(unittest.TestCase):
             p.shift(-5),
             l.Laurent({-9: 2, -6: 0, -3: 3})
         )
+
+    def test_bottom(self):
+        p = l.Laurent({-4: 1, -1: 0, 2: 3})
+        self.assertEqual(
+            p.bottom(),
+            -4
+        )
+        p = l.Laurent({-1: 1, 0: 1, 2: 3})
+        self.assertEqual(
+            p.bottom(),
+            -1
+        )
+        p = l.Laurent({0: 0})
+        self.assertEqual(
+            p.bottom(),
+            None
+        )

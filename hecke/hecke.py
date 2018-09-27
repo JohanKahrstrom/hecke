@@ -139,11 +139,10 @@ class HeckeAlgebra:
         tmp = h.deepcopy()
         kl = self.generate_kl_basis()
         ret = dict()
-        for g in self.group.all_elements():
-            coef = (kl[g.name] * tmp).tau()
-            if coef != l.zero:
-                ret[g.name] = coef
-                tmp -= kl[g.name] * coef
+
+        while tmp != self.zero:
+            break
+
         return ret
 
 
@@ -209,8 +208,10 @@ class HeckeElement:
         """H_x.i() = H_x^-1"""
         ret = self.hecke.zero
         for element, coef in self.elements.items():
-            ret += self.hecke.get_standard_dual(
-                self.group[element].inverse * coef
+            ret += (
+                self.hecke.get_standard_basis_element(
+                    self.hecke.group[element].inverse().name
+                ) * coef
             )
         return ret
 

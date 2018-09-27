@@ -68,6 +68,12 @@ class Laurent:
             d[-deg] = value
         return Laurent(d)
 
+    def bottom(self):
+        if len(self.coef) == 0:
+            return None
+        else:
+            return self.coef.keys()[0]
+
     def __str__(self):
         return str(self.coef)
 
