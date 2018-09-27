@@ -136,12 +136,28 @@ class HeckeAlgebra:
         return self._dual_kl_basis
 
     def in_kl_basis(self, h):
+        basis = self.generate_kl_basis()
+        return self.in_basis(basis, h)
+
+    def in_dual_kl_basis(self, h):
+        basis = self.generate_dual_kl_basis()
+        return self.in_basis(basis, h)
+
+    def in_basis(self, basis, h):
         tmp = h.deepcopy()
-        kl = self.generate_kl_basis()
         ret = dict()
 
         while tmp != self.zero:
-            break
+            for bottom_element, degree in tmp.bottom():
+                print(f"{bottom_element}, {degree}")
+                coeff = tmp[bottom_element][degree]
+                sub = basis[bottom_element].shift(degree) * coeff
+                print(f"{sub}")
+                ret[bottom_element] = (
+                        l.one.shift(degree) * coeff +
+                        ret.get(bottom_element, l.zero)
+                )
+                tmp -= sub
 
         return ret
 
@@ -198,6 +214,9 @@ class HeckeElement:
                 ret += self.hecke.simple_mul(thiselement, otherelement) * coeff
         return ret
 
+    def shift(self, n):
+        return self * l.Laurent({n: 1})
+
     def dual(self):
         ret = self.hecke.zero
         for element, coef in self.elements.items():
@@ -217,6 +236,19 @@ class HeckeElement:
 
     def tau(self):
         return self['e']
+
+    def bottom(self):
+        """Returns the set of keys that have lowest degree coefficient"""
+        ret = []
+        mindegree = None
+        for element, coef in self.elements.items():
+            if mindegree == None or mindegree > coef.bottom():
+                mindegree = coef.bottom()
+                ret = [(element, mindegree)]
+            elif mindegree == coef.bottom():
+                ret.append((element, mindegree))
+
+        return ret
 
     def __getitem__(self, item):
         return self.elements.get(item, l.zero)

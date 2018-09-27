@@ -330,24 +330,28 @@ class TestHecke(unittest.TestCase):
                 hecke.get_standard_basis_element(element.inverse().name)
             )
 
-    def test_hecke_basis(self):
+    def test_kl_basis(self):
         group = c.generate_a2()
         hecke = h.HeckeAlgebra(group)
+        kl_basis = hecke.generate_kl_basis()
 
-        res = hecke.in_kl_basis(hecke.get_standard_basis_element('e'))
-        # self.assertEqual(
-        #     res,
-        #     {
-        #         'e': l.one
-        #     }
-        # )
-        # res = hecke.in_kl_basis(hecke.get_standard_basis_element('s'))
-        # print(res)
-        # self.assertEqual(
-        #     res,
-        #     {
-        #         'e': l.one.shift(-1),
-        #         's': l.one
-        #     }
-        # )
+        for x in group.elements.keys():
+            hx = hecke.get_standard_basis_element(x)
+            hxkl = hecke.in_kl_basis(hx)
+            ress = hecke.zero
+            for element, coef in hxkl.items():
+                ress += kl_basis[element] * coef
+            self.assertEqual(hx, ress)
 
+    def test_dual_kl_basis(self):
+        group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
+        dual_kl_basis = hecke.generate_dual_kl_basis()
+
+        for x in group.elements.keys():
+            hx = hecke.get_standard_basis_element(x)
+            hxkl = hecke.in_dual_kl_basis(hx)
+            ress = hecke.zero
+            for element, coef in hxkl.items():
+                ress += dual_kl_basis[element] * coef
+            self.assertEqual(hx, ress)

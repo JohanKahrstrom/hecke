@@ -113,3 +113,21 @@ class TestLaurent(unittest.TestCase):
             p.bottom(),
             None
         )
+
+    def test_shift(self):
+        p = l.Laurent({-4: 1, -1: 0, 2: 3})
+        self.assertEqual(
+            p.shift(3),
+            l.Laurent({-1: 1, 2: 0, 5: 3})
+        )
+        p = l.Laurent({-1: 1, 0: 1, 2: 3})
+        self.assertEqual(
+            p.shift(-10),
+            l.Laurent({-11: 1, -10: 1, -8: 3})
+        )
+        p = l.Laurent({0: 0})
+        self.assertEqual(
+            p.shift(100),
+            l.zero
+        )
+
