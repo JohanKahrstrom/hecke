@@ -1,3 +1,5 @@
+import math
+
 class Permutation:
     """
     values: A list encoding the permutation
@@ -9,6 +11,13 @@ class Permutation:
         return self.values == other.values
 
     def __mul__(self, other):
+        def sgn(x):
+            if x > 0:
+                return 1
+            elif x < 0:
+                return -1
+            else:
+                return 0
         """
         'Composition on the right', i.e.
             p.Permutation([2, 1, 3]) *
@@ -18,7 +27,7 @@ class Permutation:
         :param other:
         :return:
         """
-        return Permutation([self.values[v - 1] for v in other.values])
+        return Permutation([self.values[abs(v) - 1] * sgn(v) for v in other.values])
 
     def inverse(self):
         ret = self.values.copy()

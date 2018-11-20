@@ -97,3 +97,21 @@ class TestCoxeter(unittest.TestCase):
 
         a3 = c.generate_a3()
         self.assertEqual(a3.longest.name, "rsrtsr")
+
+    def test_index(self):
+        group = c.generate_a2()
+
+        self.assertEqual(group['e'].index, 0)
+        self.assertEqual(group['r'].index, 1)
+        self.assertEqual(group['s'].index, 2)
+        self.assertEqual(group['rs'].index, 3)
+        self.assertEqual(group['sr'].index, 4)
+        self.assertEqual(group['rsr'].index, 5)
+
+    def test_b2(self):
+        group = c.generate_b2()
+
+        names = [x.name for x in group.all_elements()]
+        expected_names = ['e', 'r', 's', 'rs', 'sr', 'rsr', 'srs', 'rsrs']
+
+        self.assertEqual(names, expected_names)

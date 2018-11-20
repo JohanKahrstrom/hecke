@@ -97,20 +97,32 @@ class TestLaurent(unittest.TestCase):
             l.Laurent({-9: 2, -6: 0, -3: 3})
         )
 
-    def test_bottom(self):
+    def test_top_and_bottom(self):
         p = l.Laurent({-4: 1, -1: 0, 2: 3})
         self.assertEqual(
             p.bottom(),
             -4
+        )
+        self.assertEqual(
+            p.top(),
+            2
         )
         p = l.Laurent({-1: 1, 0: 1, 2: 3})
         self.assertEqual(
             p.bottom(),
             -1
         )
+        self.assertEqual(
+            p.top(),
+            2
+        )
         p = l.Laurent({0: 0})
         self.assertEqual(
             p.bottom(),
+            None
+        )
+        self.assertEqual(
+            p.top(),
             None
         )
 
@@ -131,3 +143,12 @@ class TestLaurent(unittest.TestCase):
             l.zero
         )
 
+    def test_evaluate(self):
+        p = l.Laurent({0: 1, 1: 2, 2: 1})
+
+        self.assertEqual(p(2), 3**2)
+        self.assertEqual(p(-1), 0)
+
+        p = l.Laurent({-1: 1, 0: 1})
+
+        self.assertEqual(p(1), 2)

@@ -8,9 +8,10 @@ permutations each name corresponds to, as well as a map from permutation
 to name.
 """
 class CoxeterElement:
-    def __init__(self, group, name):
+    def __init__(self, group, name, index):
         self.group = group
         self.name = name
+        self.index = index
 
     def __mul__(self, other):
         if self.group != other.group:
@@ -40,7 +41,9 @@ class CoxeterElement:
 class CoxeterGroup:
     def __init__(self, generators, elements, permutations, name_lookup, inverse):
         self.generators = generators
+        self._all_generators = None
         self.elements = elements
+        self._all_elements = None
         self.permutations = permutations
         self.name_lookup = name_lookup
         self.inverse = inverse
@@ -49,7 +52,7 @@ class CoxeterGroup:
         return self.elements[name]
 
     def get_x(self, name):
-        element = self.get('e')
+        element = self['e']
         for generator_name in list(name):
             element *= self.get(generator_name)
         return element
@@ -83,13 +86,13 @@ class CoxeterGroup:
         seen_permutations = set()
         # Add identity
         identity_permutation = p.Permutation(list(range(1, list(lengths)[0] + 1)))
-        elements['e'] = CoxeterElement(group, 'e')
+        elements['e'] = CoxeterElement(group, 'e', 0)
         group.identity = elements['e']
         permutations['e'] = identity_permutation
         seen_permutations.add(identity_permutation)
         # Add generators
         for name, permutation in sorted_generators.items():
-            elements[name] = CoxeterElement(group, name)
+            elements[name] = CoxeterElement(group, name, len(elements))
             seen_permutations.add(permutation)
             permutations[name] = permutation
         # Generate the rest of the elements
@@ -104,7 +107,7 @@ class CoxeterGroup:
                     if not new_permutation in seen_permutations:
                         permutations[new_name] = new_permutation
                         seen_permutations.add(new_permutation)
-                        elements[new_name] = CoxeterElement(group, new_name)
+                        elements[new_name] = CoxeterElement(group, new_name, len(elements))
                         new_permutations[new_name] = new_permutation
             last_layer = new_permutations
             nrloops += 1
@@ -127,11 +130,21 @@ class CoxeterGroup:
 
         return group
 
+    def all_generators(self):
+        """Returns the generators, ordered by name"""
+        if self._all_generators is None:
+            self._all_generators = [self.elements[key]
+                                    for key
+                                    in sorted(self.generators.keys())]
+        return self._all_generators
+
     def all_elements(self):
-        """Returns the elementsl ordered by (len(nate), name)"""
-        return [self.elements[key]
-                for key
-                in sorted(self.elements.keys(), key=lambda x: (len(x), x))]
+        """Returns the elements, ordered by (len(nate), name)"""
+        if self._all_elements is None:
+            self._all_elements = [self.elements[key]
+                                  for key
+                                  in sorted(self.elements.keys(), key=lambda x: (len(x), x))]
+        return self._all_elements
 
 
 def generate_a1():
@@ -170,3 +183,61 @@ def generate_a5():
         'u': p.Permutation([1, 2, 3, 5, 4, 6]),
         'v': p.Permutation([1, 2, 3, 4, 6, 5])
     })
+
+
+def generate_b2():
+    return CoxeterGroup.generate({
+        'r': p.Permutation([2, 1]),
+        's': p.Permutation([1, -2])
+    })
+
+
+def generate_b3():
+    return CoxeterGroup.generate({
+        'r': p.Permutation([2, 1, 3]),
+        's': p.Permutation([1, 3, 2]),
+        't': p.Permutation([1, 2, -3])
+    })
+
+
+# B_3/C_3
+#      Coxeter.set_identity(CoxeterTypeBRepresentation.new([1, 2,  3]), "e")
+# r = Coxeter.add_generator(CoxeterTypeBRepresentation.new([2, 1,  3]), "r")
+# s = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 3,  2]), "s")
+# t = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, -3]), "t")
+
+# B_4/C_4
+#      Coxeter.set_identity(CoxeterTypeBRepresentation.new([1, 2, 3, 4]), "e")
+# r = Coxeter.add_generator(CoxeterTypeBRepresentation.new([2, 1, 3, 4]), "r")
+# s = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 3, 2, 4]), "s")
+# t = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 4, 3]), "t")
+# u = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 3, -4]), "u")
+
+# B_5/C_5
+#      Coxeter.set_identity(CoxeterTypeBRepresentation.new([1, 2, 3, 4, 5]), "e")
+# r = Coxeter.add_generator(CoxeterTypeBRepresentation.new([2, 1, 3, 4, 5]), "r")
+# s = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 3, 2, 4, 5]), "s")
+# t = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 4, 3, 5]), "t")
+# u = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 3, 5, 4]), "u")
+# v = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 3, 4, -5]), "v")
+
+# D_4
+#      Coxeter.set_identity(CoxeterTypeBRepresentation.new([1, 2,  3,  4]), "e")
+# r = Coxeter.add_generator(CoxeterTypeBRepresentation.new([2, 1,  3,  4]), "r")
+# s = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 3,  2,  4]), "s")
+# t = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2,  4,  3]), "t")
+# u = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, -4, -3]), "u")
+
+# D_5
+#      Coxeter.set_identity(CoxeterTypeBRepresentation.new([1, 2, 3, 4, 5]), "e")
+# r = Coxeter.add_generator(CoxeterTypeBRepresentation.new([2, 1, 3, 4, 5]), "r")
+# s = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 3, 2, 4, 5]), "s")
+# t = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 4, 3, 5]), "t")
+# u = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 3, 5, 4]), "u")
+# v = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 3, -5, -4]), "v")
+
+
+# G_2
+#      Coxeter.set_identity(CoxeterTypeGRepresentation.new([0,  1]), "e")
+# r = Coxeter.add_generator(CoxeterTypeGRepresentation.new([0, -1]), "r")
+# s = Coxeter.add_generator(CoxeterTypeGRepresentation.new([1, -1]), "s")

@@ -2,6 +2,7 @@ import unittest
 import hecke.hecke as h
 import hecke.coxeter as c
 import hecke.laurent as l
+import numpy as np
 
 
 class TestHecke(unittest.TestCase):
@@ -337,7 +338,7 @@ class TestHecke(unittest.TestCase):
 
         for x in group.elements.keys():
             hx = hecke.get_standard_basis_element(x)
-            hxkl = hecke.in_kl_basis(hx)
+            hxkl = hx.in_kl_basis()
             ress = hecke.zero
             for element, coef in hxkl.items():
                 ress += kl_basis[element] * coef
@@ -350,8 +351,118 @@ class TestHecke(unittest.TestCase):
 
         for x in group.elements.keys():
             hx = hecke.get_standard_basis_element(x)
-            hxkl = hecke.in_dual_kl_basis(hx)
+            hxkl = hx.in_dual_kl_basis()
             ress = hecke.zero
             for element, coef in hxkl.items():
                 ress += dual_kl_basis[element] * coef
             self.assertEqual(hx, ress)
+
+    def test_filtration_string(self):
+        group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
+        kl_basis = hecke.generate_kl_basis()
+        dual_kl_basis = hecke.generate_dual_kl_basis()
+
+        self.assertEqual(
+            dual_kl_basis['e'].dual_kl_filtration(),
+            'e\n'
+        )
+
+        self.assertEqual(
+            hecke.get_standard_basis_element('e').dual_kl_filtration(),
+            (
+                "  e  \n"
+                " r s \n"
+                "rs sr\n"
+                " rsr \n"
+            )
+        )
+
+    def test_basis_matrix(self):
+        group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
+
+        standard_basis = [
+            (x, hecke.get_standard_basis_element(x))
+            for x in sorted(group.elements.keys(), key=lambda x: (len(x), x))
+        ]
+        ret = hecke.basis_matrix(standard_basis,
+                                 hecke.generate_dual_kl_basis())
+
+        expected = [
+            [1, 1, 1, 1, 1, 1],
+            [0, 1, 0, 1, 1, 1],
+            [0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 1, 0, 1],
+            [0, 0, 0, 0, 1, 1],
+            [0, 0, 0, 0, 0, 1]
+        ]
+        self.assertEquals(ret, expected)
+
+        group = c.generate_a3()
+        hecke = h.HeckeAlgebra(group)
+
+        kl_basis = hecke.generate_kl_basis()
+        dual_kl_basis = hecke.generate_dual_kl_basis()
+
+        d = dict()
+        for element in ['e', 's', 'sr', 'st']:
+            d[element] = (dual_kl_basis['s'] * kl_basis[element]).in_dual_kl_basis()
+
+        ret = hecke.matrix(d)
+
+        expected = [
+            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 2, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+
+        self.assertEqual(ret, expected)
+
+    def test_orders(self):
+        group = c.generate_a2()
+        hecke = h.HeckeAlgebra(group)
+
+        left, right = hecke.generate_orders()
+
+        # e, s, r, sr, rs, rsr
+        expected_right = np.array([
+            [1, 0, 0, 0, 0, 0],
+            [1, 1, 0, 1, 0, 0],
+            [1, 0, 1, 0, 1, 0],
+            [1, 1, 0, 1, 0, 0],
+            [1, 0, 1, 0, 1, 0],
+            [1, 1, 1, 1, 1, 1]
+        ], dtype=bool)
+        expected_left = np.array([
+            [1, 0, 0, 0, 0, 0],
+            [1, 1, 0, 0, 1, 0],
+            [1, 0, 1, 1, 0, 0],
+            [1, 0, 1, 1, 0, 0],
+            [1, 1, 0, 0, 1, 0],
+            [1, 1, 1, 1, 1, 1]
+        ], dtype=bool)
+
+        np.testing.assert_array_equal(right, expected_right)
+        # np.testing.assert_array_equal(left, expected_left)

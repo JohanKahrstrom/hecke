@@ -20,6 +20,19 @@ class Laurent:
     def __getitem__(self, key):
         return self.coef.get(key, 0)
 
+    def __call__(self, v):
+        sum = 0
+        for deg, coef in self.coef.items():
+            sum += coef * (v ** deg)
+        return sum
+
+    def __iter__(self):
+        for key, value in self.coef.items():
+            yield (key, value)
+
+    def items(self):
+        return self.coef.items()
+
     def __eq__(self, other):
         return self.coef == other.coef
 
@@ -67,6 +80,12 @@ class Laurent:
         for deg, value in self.coef.items():
             d[-deg] = value
         return Laurent(d)
+
+    def top(self):
+        if len(self.coef) == 0:
+            return None
+        else:
+            return self.coef.keys()[-1]
 
     def bottom(self):
         if len(self.coef) == 0:

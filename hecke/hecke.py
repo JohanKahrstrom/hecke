@@ -1,5 +1,7 @@
 import hecke.laurent as l
 import copy
+import numpy as np
+import time
 
 
 class HeckeAlgebra:
@@ -9,6 +11,8 @@ class HeckeAlgebra:
         self.one = HeckeElement(self, {'e': l.one})
         self._kl_basis = None
         self._dual_kl_basis = None
+        self._left_order = None
+        self._right_order = None
 
     def element(self, d):
         """
@@ -71,6 +75,7 @@ class HeckeAlgebra:
 
     def generate_kl_basis(self):
         if self._kl_basis is None:
+            n = len(self.group.all_elements())
             ret = dict()
 
             # Add identity
@@ -84,8 +89,9 @@ class HeckeAlgebra:
                 )
 
             # Add the rest
-            for name in sorted(self.group.elements.keys(),
-                               key=lambda str: (len(str), str)):
+            start = time.time()
+            for i, name in enumerate(sorted(self.group.elements.keys(),
+                                            key=lambda str: (len(str), str))):
                 if name not in ret:
                     x = name[:-1]
                     kl_x = ret[x]
@@ -101,6 +107,11 @@ class HeckeAlgebra:
                             if 1 in coef and (self.group[y] * self.group[s]).length() < self.group[y].length():
                                 sub -= ret[y] * coef[1]
                         ret[xs] = kl_xs + sub
+                    difftime = time.time() - start
+                    if difftime > 5.0:
+                        print('KL-basis generated ' + '{:2.2f}%'.format(
+                            100 * (i + 1) / n))
+                        start = time.time()
 
             self._kl_basis = ret
         return self._kl_basis
@@ -108,15 +119,17 @@ class HeckeAlgebra:
     def generate_dual_kl_basis(self):
         if self._dual_kl_basis is None:
             kl_basis = self.generate_kl_basis()
+            n = len(self.group.all_elements())
             ret = dict()
 
             # Add longest element
             ret[self.group.longest.name] = self.get_standard_basis_element(self.group.longest.name)
 
+            start = time.time()
             # Add the rest
-            for name in sorted(self.group.elements.keys(),
-                               key=lambda str: (len(str), str),
-                               reverse=True):
+            for i, name in enumerate(sorted(self.group.elements.keys(),
+                                            key=lambda str: (len(str), str),
+                                            reverse=True)):
                 x = self.group[name]
                 for generator in self.group.generators.keys():
                     s = self.group[generator]
@@ -131,34 +144,140 @@ class HeckeAlgebra:
                             if 1 in coef and (self.group[y] * self.group[s.name]).length() > self.group[y].length():
                                 sub -= ret[y] * coef[1]
                         ret[xs.name] = dkl_xs - sub
+                difftime = time.time() - start
+                if difftime > 5.0:
+                    print('Dual KL-basis generated ' + '{:2.2f}%'.format(100 * (i + 1) / n))
+                    start = time.time()
 
             self._dual_kl_basis = ret
         return self._dual_kl_basis
 
-    def in_kl_basis(self, h):
-        basis = self.generate_kl_basis()
-        return self.in_basis(basis, h)
+    def generate_orders(self):
+        if self._left_order is None or self._right_order is None:
+            digraph = self._generate_digraph()
+            self._right_order = self._order_from_digraph(digraph)
 
-    def in_dual_kl_basis(self, h):
-        basis = self.generate_dual_kl_basis()
-        return self.in_basis(basis, h)
+            # There's probably a better way of doing this...
+            self._left_order = np.zeros(self._right_order.shape)
+            for xi, x in enumerate(self.group.all_elements()):
+                xinversei = x.inverse().index
+                for yi, y in enumerate(self.group.all_elements()):
+                    yinversei = y.inverse().index
+                    self._left_order[xi, yi] = self._right_order[xinversei, yinversei]
 
-    def in_basis(self, basis, h):
-        tmp = h.deepcopy()
-        ret = dict()
+        return self._left_order, self._right_order
 
-        while tmp != self.zero:
-            for bottom_element, degree in tmp.bottom():
-                print(f"{bottom_element}, {degree}")
-                coeff = tmp[bottom_element][degree]
-                sub = basis[bottom_element].shift(degree) * coeff
-                print(f"{sub}")
-                ret[bottom_element] = (
-                        l.one.shift(degree) * coeff +
-                        ret.get(bottom_element, l.zero)
-                )
-                tmp -= sub
+    def _generate_digraph(self):
+        """
+        Returns a map element -> set of elements directly larger.
+        :return:
+        """
+        kl_basis = self.generate_kl_basis()
+        print('Generating digraph')
+        n = len(self.group.all_elements())
+        d = dict()
+        start = time.time()
+        for i, x in enumerate(self.group.all_elements()):
+            s = set()
+            for g in self.group.all_generators():
+                s.update((kl_basis[x.name] * kl_basis[g.name]).in_kl_basis().keys())
+            d[x.name] = s
+            difftime = time.time() - start
+            if difftime > 5.0:
+                print('Digram generated ' + '{:2.2f}%'.format(
+                    100 * (i + 1) / n))
+                start = time.time()
+        print('Finished generating digraph')
+        return d
 
+    def _order_from_digraph(self, digraph):
+        def rec(base, x, order):
+            for yname in digraph[x.name]:
+                y = self.group[yname]
+                if not order[y.index, base.index]:
+                    order[y.index, base.index] = True
+                    rec(base, y, order)
+
+        print('Generating order from digraph')
+        n = len(self.group.elements)
+        order = np.diag(np.ones(n, dtype=bool))
+        order[self.group.identity.index, self.group.identity.index] = True
+        start = time.time()
+        for i, x in enumerate(self.group.all_elements()[::-1]):
+            rec(x, x, order)
+            difftime = time.time() - start
+            if difftime > 5.0:
+                print('Order from digraph generated ' + '{:2.2f}%'.format(
+                    100 * (i + 1) / n))
+                start = time.time()
+        print('Finished generating order from digraph')
+        return order
+
+    def filtration_str(self, d):
+        """Returns a string repreentation of the filtration 'd'. 'd' is a
+        dictionary from element name to Laurent polynomial"""
+        def get_coefficient_string(value):
+            if value == 1:
+                return ""
+            else:
+                return str(value)
+
+        if not d:
+            return "\n"
+
+        by_degree = dict()
+        for name in sorted(d.keys(), key=lambda x: (len(x), x)):
+            coef = d[name]
+            for degree, value in coef.items():
+                if degree in by_degree:
+                    by_degree[degree] += f" {get_coefficient_string(value)}{name}"
+                else:
+                    by_degree[degree] = f"{get_coefficient_string(value)}{name}"
+
+        if not by_degree:
+            return "\n"
+
+        width = max([len(s) for s in by_degree.values()])
+        bottom = min(by_degree.keys())
+        top = max(by_degree.keys())
+        return "\n".join([
+            by_degree.get(deg, "").center(width, " ")
+            for deg in range(bottom, top + 1)
+        ]) + "\n"
+
+    def basis_matrix(self, elements, basis):
+        """
+        Returns a matrix representing the change of basis between basis1 and
+        basis2, when specializing v = 1.
+        :param basis1:
+        :param basis2:
+        :return:
+        """
+        d = dict()
+        for name, x in elements:
+            row = dict()
+            xb = x.in_basis(basis)
+            for y in sorted(basis.keys(), key=lambda x: (len(x), x)):
+                p = xb.get(y, l.zero)
+                row[y] = p
+            d[name] = row
+        return self.matrix(d)
+
+    def vector(self, d):
+        """d is a dictionary element -> Laurent"""
+        ret = []
+        for x in self.group.all_elements():
+            p = d.get(x.name, l.zero)
+            ret.append(p(1))
+        return ret
+
+    def matrix(self, d):
+        """d is a dictionary Dict[element, Dict[element, value]]"""
+        ret = []
+        for x in self.group.all_elements():
+            row = []
+            xr = d.get(x.name, dict())
+            ret.append(self.vector(xr))
         return ret
 
 
@@ -261,3 +380,37 @@ class HeckeElement:
 
     def __str__(self):
         return f'Hecke({self.hecke.group}, {self.elements})'
+
+    def in_basis(self, basis):
+        """
+        Decomposes 'h' into the basis 'basis'. 'basis' is a dictionary from
+        element name to Laurent polynomial, which all have to be
+        :param basis:
+        :param h:
+        :return:
+        """
+        tmp = self.deepcopy()
+        ret = dict()
+
+        while tmp != self.hecke.zero:
+            for bottom_element, degree in tmp.bottom():
+                coeff = tmp[bottom_element][degree]
+                sub = basis[bottom_element].shift(degree) * coeff
+                ret[bottom_element] = (
+                        l.Laurent({degree: coeff}) +
+                        ret.get(bottom_element, l.zero)
+                )
+                tmp -= sub
+
+        return ret
+
+    def in_kl_basis(self):
+        basis = self.hecke.generate_kl_basis()
+        return self.in_basis(basis)
+
+    def in_dual_kl_basis(self):
+        basis = self.hecke.generate_dual_kl_basis()
+        return self.in_basis(basis)
+
+    def dual_kl_filtration(self):
+        return self.hecke.filtration_str(self.in_dual_kl_basis())
