@@ -34,6 +34,9 @@ class CoxeterElement:
         else:
             return len(self.name)
 
+    def __str__(self):
+        return self.name
+
     def __eq__(self, other):
         return self.group == other.group and self.name == other.name
 
