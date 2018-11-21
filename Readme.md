@@ -6,13 +6,38 @@ groups and Hecke algebras. Note that we use
 where the standard basis satisfies
 H<sub>s</sub><sup>2</sup> = 1 + (v<sup>-1</sup>-v)H<sub>s</sup>.
 
-# Usage examples
+## Notes
+
+The Coxeter identity element is named 'e', and the simple
+reflections 'r', 's', 't', etc.
+
+## Usage examples
+
+This example generates the A3 Coxeter group, the corresponding
+Hecke algebra, and prints the Kazhdan-Lusztig basis element
+corresponding to the identity in the dual Kazhdan-Lusztig basis.
 
 ```python
 >>> import jk.hecke.coxeter as c
 >>> import jk.hecke.hecke as h
 >>> g = c.generate_a3()
->>> h = h.HeckeAlgebra(g)
+>>> hecke = h.HeckeAlgebra(g)
+>>> kl_basis = hecke.generate_kl_basis()
+>>> dual_kl_basisa = hecke.generate_dual_kl_basis()
+>>> print(kl_basis['e'].dual_kl_filtration())
+              e
+            r s t
+     rs rt sr st ts srts
+rsr rst rts srt sts tsr rstsr
+   rsrt rsts rtsr srts stsr
+      rsrts rstsr srtsr
+            rsrtsr
+```
 
-
+```python
+>>> left_order, right_order = hecke.generate_orders()
+Generating digraph
+Finished generating digraph
+Generating order from digraph
+Finished generating order from digraph
 ```
