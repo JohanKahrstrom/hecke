@@ -200,42 +200,49 @@ def generate_b3():
     })
 
 
-# B_3/C_3
-#      Coxeter.set_identity(CoxeterTypeBRepresentation.new([1, 2,  3]), "e")
-# r = Coxeter.add_generator(CoxeterTypeBRepresentation.new([2, 1,  3]), "r")
-# s = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 3,  2]), "s")
-# t = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, -3]), "t")
+def generate_b4():
+    return CoxeterGroup.generate({
+        'r': p.Permutation([2, 1, 3, 4]),
+        's': p.Permutation([1, 3, 2, 4]),
+        't': p.Permutation([1, 2, 4, 3]),
+        'u': p.Permutation([1, 2, 3, -4])
+    })
 
-# B_4/C_4
-#      Coxeter.set_identity(CoxeterTypeBRepresentation.new([1, 2, 3, 4]), "e")
-# r = Coxeter.add_generator(CoxeterTypeBRepresentation.new([2, 1, 3, 4]), "r")
-# s = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 3, 2, 4]), "s")
-# t = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 4, 3]), "t")
-# u = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 3, -4]), "u")
 
-# B_5/C_5
-#      Coxeter.set_identity(CoxeterTypeBRepresentation.new([1, 2, 3, 4, 5]), "e")
-# r = Coxeter.add_generator(CoxeterTypeBRepresentation.new([2, 1, 3, 4, 5]), "r")
-# s = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 3, 2, 4, 5]), "s")
-# t = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 4, 3, 5]), "t")
-# u = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 3, 5, 4]), "u")
-# v = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 3, 4, -5]), "v")
+def generate_b5():
+    return CoxeterGroup.generate({
+        'r': p.Permutation([2, 1, 3, 4, 5]),
+        's': p.Permutation([1, 3, 2, 4, 5]),
+        't': p.Permutation([1, 2, 4, 3, 5]),
+        'u': p.Permutation([1, 2, 3, 5, 4]),
+        'v': p.Permutation([1, 2, 3, 4, -5])
+    })
 
-# D_4
-#      Coxeter.set_identity(CoxeterTypeBRepresentation.new([1, 2,  3,  4]), "e")
-# r = Coxeter.add_generator(CoxeterTypeBRepresentation.new([2, 1,  3,  4]), "r")
-# s = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 3,  2,  4]), "s")
-# t = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2,  4,  3]), "t")
-# u = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, -4, -3]), "u")
 
-# D_5
-#      Coxeter.set_identity(CoxeterTypeBRepresentation.new([1, 2, 3, 4, 5]), "e")
-# r = Coxeter.add_generator(CoxeterTypeBRepresentation.new([2, 1, 3, 4, 5]), "r")
-# s = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 3, 2, 4, 5]), "s")
-# t = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 4, 3, 5]), "t")
-# u = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 3, 5, 4]), "u")
-# v = Coxeter.add_generator(CoxeterTypeBRepresentation.new([1, 2, 3, -5, -4]), "v")
+def generate_d4():
+    return CoxeterGroup.generate({
+        'r': p.Permutation([2, 1, 3, 4]),
+        's': p.Permutation([1, 3, 2, 4]),
+        't': p.Permutation([1, 2, 4, 3]),
+        'u': p.Permutation([1, 2, -4, -3])
+    })
 
+
+def generate_d5():
+    return CoxeterGroup.generate({
+        'r': p.Permutation([2, 1, 3, 4, 5]),
+        's': p.Permutation([1, 3, 2, 4, 5]),
+        't': p.Permutation([1, 2, 4, 3, 5]),
+        'u': p.Permutation([1, 2, 3, 5, 4]),
+        'v': p.Permutation([1, 2, 3, -5, -4])
+    })
+
+
+def generate_g2():
+    return CoxeterGroup.generate({
+        'r': p.Permutation([1, 1]),
+        's': p.Permutation([1, -2])
+    })
 
 # G_2
 #      Coxeter.set_identity(CoxeterTypeGRepresentation.new([0,  1]), "e")
