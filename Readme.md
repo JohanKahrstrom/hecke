@@ -51,3 +51,57 @@ Finished generating order from digraph
 rt
 srt
 ```
+
+```python
+>>> for x in g.all_elements():
+...     if left_order[g['rt'].index][x.inverse().index]:
+...             print(f'Multiplying dual KL-basis element {x} with KL-basis element {g["rt"]}:')
+...             print((dual_kl_basis['rt'] * kl_basis[x.name]).dual_kl_filtration())
+...
+Multiplying dual KL-basis element e with KL-basis element rt:
+rt
+
+Multiplying dual KL-basis element r with KL-basis element rt:
+    rt
+t rst rts
+    rt
+
+Multiplying dual KL-basis element t with KL-basis element rt:
+    rt
+r rts tsr
+    rt
+
+Multiplying dual KL-basis element rs with KL-basis element rt:
+rts
+ rt
+rts
+
+Multiplying dual KL-basis element rt with KL-basis element rt:
+       rt
+r t rst rts tsr
+  e rs 2rt ts
+r t rst rts tsr
+       rt
+
+Multiplying dual KL-basis element ts with KL-basis element rt:
+rts
+ rt
+rts
+
+Multiplying dual KL-basis element rst with KL-basis element rt:
+    rt
+r rts tsr
+    rt
+
+Multiplying dual KL-basis element rts with KL-basis element rt:
+      rts
+    rs rt ts
+r t rst 2rts tsr
+    rs rt ts
+      rts
+
+Multiplying dual KL-basis element tsr with KL-basis element rt:
+    rt
+t rst rts
+    rt
+```
