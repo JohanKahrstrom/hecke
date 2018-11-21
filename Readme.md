@@ -18,7 +18,7 @@ This example generates the A3 Coxeter group, the corresponding
 Hecke algebra, and prints the Kazhdan-Lusztig basis element
 corresponding to the identity in the dual Kazhdan-Lusztig basis.
 
-```python
+```
 >>> import jk.hecke.coxeter as c
 >>> import jk.hecke.hecke as h
 >>> g = c.generate_a3()
@@ -38,7 +38,7 @@ rsr rst rts srt sts tsr rstsr
 This example finds all elements in the same left cell as the
 element 'rt'.
 
-```python
+```
 >>> left_order, right_order = hecke.generate_orders()
 Generating digraph
 Finished generating digraph
@@ -52,7 +52,7 @@ rt
 srt
 ```
 
-```python
+```
 >>> for x in g.all_elements():
 ...     if left_order[g['rt'].index][x.inverse().index]:
 ...             print(f'Multiplying dual KL-basis element {x} with KL-basis element {g["rt"]}:')
