@@ -1,7 +1,6 @@
 import unittest
 
-import hecke.permutation as p
-import hecke.coxeter as c
+from jk.hecke import permutation as p, coxeter as c
 
 
 class TestCoxeter(unittest.TestCase):

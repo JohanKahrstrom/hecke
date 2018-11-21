@@ -1,4 +1,4 @@
-import hecke.permutation as p
+from jk.hecke import permutation as p
 import sortedcontainers as sc
 
 """

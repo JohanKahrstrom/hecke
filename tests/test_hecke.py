@@ -1,7 +1,6 @@
 import unittest
-import hecke.hecke as h
-import hecke.coxeter as c
-import hecke.laurent as l
+from jk.hecke import hecke as h, coxeter as c
+import jk.hecke.laurent as l
 import numpy as np
 
 

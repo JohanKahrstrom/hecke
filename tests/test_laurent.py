@@ -1,6 +1,6 @@
 import unittest
 
-import hecke.laurent as l
+import jk.hecke.laurent as l
 
 
 class TestLaurent(unittest.TestCase):

@@ -1,4 +1,4 @@
-import hecke.laurent as l
+import jk.hecke.laurent as l
 import copy
 import numpy as np
 import time

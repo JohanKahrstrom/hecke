@@ -1,6 +1,6 @@
 import unittest
 
-import hecke.permutation as p
+from jk.hecke import permutation as p
 
 
 class TestPermutation(unittest.TestCase):
