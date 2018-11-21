@@ -9,7 +9,8 @@ H<sub>s</sub><sup>2</sup> = 1 + (v<sup>-1</sup>-v)H<sub>s</sup>.
 ## Notes
 
 The Coxeter identity element is named 'e', and the simple
-reflections 'r', 's', 't', etc.
+reflections 'r', 's', 't', etc. We also use the convention that
+the identity is the largest element in the left and right orders.
 
 ## Usage examples
 
@@ -34,10 +35,19 @@ rsr rst rts srt sts tsr rstsr
             rsrtsr
 ```
 
+This example finds all elements in the same left cell as the
+element 'rt'.
+
 ```python
 >>> left_order, right_order = hecke.generate_orders()
 Generating digraph
 Finished generating digraph
 Generating order from digraph
 Finished generating order from digraph
+>>> for x in g.all_elements():
+...     if left_order[x.index][g['rt'].index] and left_order[g['rt'].index][x.index]:
+...             print(x)
+...
+rt
+srt
 ```
