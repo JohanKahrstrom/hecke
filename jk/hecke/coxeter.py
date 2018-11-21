@@ -52,12 +52,15 @@ class CoxeterGroup:
         self.inverse = inverse
 
     def __getitem__(self, name):
-        return self.elements[name]
+        if name in self.elements:
+            return self.elements[name]
+        else:
+            return self.get_x(name)
 
     def get_x(self, name):
         element = self['e']
         for generator_name in list(name):
-            element *= self.get(generator_name)
+            element *= self.elements[generator_name]
         return element
 
     def get_inverse(self, name):
